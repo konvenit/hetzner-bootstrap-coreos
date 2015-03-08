@@ -18,6 +18,7 @@ module Hetzner
         attr_accessor :actions
         attr_accessor :hostname
         attr_accessor :post_install
+        attr_accessor :post_install_upload
         attr_accessor :post_install_remote
         attr_accessor :public_keys
         attr_accessor :bootstrap_cmd
@@ -178,6 +179,18 @@ module Hetzner
           end
 
           logger.info output
+        end
+
+        def post_install_upload(options = {})
+          return unless @post_install_upload
+
+          remote do |ssh|
+            @post_install_upload.each do |fname, content|
+              ssh.sftp.file.open(fname, "w") do |f|
+                f.puts content
+              end
+            end
+          end
         end
 
         def post_install_remote(options = {})
